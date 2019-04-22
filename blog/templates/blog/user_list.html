@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+{% block content %}
+    <h2> {{ header }} </h2>
+
+    <div class="list-group">
+    {% for user in user_list %}
+        <div class="list-group-item d-flex justify-content-between">
+            <a href="{% url 'user_detail_url' username=user %}" >{{ user }}</a>
+            Posts: {{ user.posts.count }}
+        </div>
+    {% endfor %}
+    </div>
+
+{% endblock %}

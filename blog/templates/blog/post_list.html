@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ title }} | {{ block.super }}
+{% endblock %}
+
+{% block header %}
+    <h2>{{ header }}</h2>
+{% endblock %}
+
+{% block content %}
+    {% for post in post_list %}
+        {% include 'blog/includes/post_card.html' %}
+    {% endfor %}
+
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Viewed posts | {{ block.super }}
+{% endblock %}
+
+
+{% block content %}
+    <h4> Viewed posts </h4>
+
+    <div class="list-group">
+    {% for post in posts %}
+        <div class="list-group-item">
+            <a href="#">{{ post }}</a>
+        </div>
+    {% endfor %}
+    </div>
+
+{% endblock %}

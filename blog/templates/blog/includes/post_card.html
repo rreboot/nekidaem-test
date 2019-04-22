@@ -1,0 +1,30 @@
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between">
+        <h5 class="m-0"><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h5>
+        <div>
+            {% if user.id == post.author.id %}
+                <a class="far fa-edit" href="{{ post.get_absolute_url }}edit/">Edit</a>
+            {% endif %}
+            {% if post in user.views.all %}
+                <a class="far fa-eye text-muted" href="{% url 'view_post_url' pk=post.id %}">Viewed</a>
+            {% else %}
+                <a class="far fa-eye" href="{% url 'view_post_url' pk=post.id %}">View</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card-body">
+        <p class="card-text">{{ post.body|truncatewords:40 }}</p>
+    </div>
+    <div class="card-footer text-muted px-4 p-1 d-flex justify-content-between">
+        <div>
+            <small>
+                <a href="{% url 'user_detail_url' username=post.author.username %}">{{ post.author }}</a>
+            </small>
+        </div>
+        <div>
+            <small class="text-muted">{{ post.created }}</small>
+        </div>
+    </div>
+</div>
+

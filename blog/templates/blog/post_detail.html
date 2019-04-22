@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Post | {{ block.super }}
+{% endblock %}
+
+
+{% block content %}
+    {% include 'blog/includes/post_card.html' %}
+{% endblock %}
