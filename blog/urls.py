@@ -5,7 +5,7 @@ from .views import *
 urlpatterns = [
     path('', PostList.as_view(), name='posts_list_url'),
     path('blog/', MyPosts.as_view(), name='my_posts_url'),
-    path('users/', UserList.as_view(template_name='blog/user_list.html'), name='users_list_url'),
+    path('users/', UserList.as_view(), name='users_list_url'),
     path('users/<str:username>/', UserDetail.as_view(), name='user_detail_url'),
     path('users/<str:username>/follow/', ToggleFollowUser.as_view(), name='follow_user_url'),
     path('post/create/', PostCreate.as_view(), name='post_create_url'),

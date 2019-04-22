@@ -11,8 +11,10 @@ from .models import Post, Contact
 from .forms import PostForm
 
 from django.views.generic import ListView
+from django.views.generic import DetailView
 
 from django.http import HttpResponseRedirect
+
 # TODO: Create Mixins!
 
 
@@ -24,26 +26,68 @@ class PostList(ListView):
 
 class UserList(ListView):
     model = User
+    template_name = 'blog/user_list.html'
     extra_context = {'title': 'Users list',
                      'header': 'Users'}
 
 
-class MyPosts(LoginRequiredMixin, View):
-    def get(self, request):
-        current_user = User.objects.get(pk=request.user.id)
-        following = current_user.following.all()
-        posts = Post.objects.filter(Q(author__in=following) | Q(author=current_user))
-        return render(request, 'blog/index.html', context={'title': 'My feed',
-                                                           'header': 'My feed',
-                                                           'posts': posts})
+class PostViewed(LoginRequiredMixin, ListView):
+    model = Post
+    template_name = 'blog/posts_viewed.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Viewed posts'
+        context['header'] = 'Viewed posts'
+        context['posts'] = self.get_queryset()
+        return context
+
+    def get_queryset(self):
+        return self.request.user.views.all()
 
 
-class UserDetail(View):
-    def get(self, request, username):
-        user = get_object_or_404(User, username=username)
-        posts = user.posts.all()
-        return render(request, 'blog/user_blog.html', context={'posts': posts,
-                                                               'username': username})
+class PostDetail(DetailView):
+    queryset = Post.objects.all()
+    template_name = 'blog/post_detail.html'
+
+    def get_object(self, queryset=None):
+        obj = super().get_object()
+        return obj
+
+
+class MyPosts(LoginRequiredMixin, ListView):
+    model = Post
+    template_name = 'blog/index.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'My feed'
+        context['header'] = 'My feed'
+        context['posts'] = self.get_queryset()
+        return context
+
+    def get_queryset(self):
+        user = User.objects.get(pk=self.request.user.id)
+        following = user.following.all()
+        qs = Post.objects.filter(Q(author__in=following) | Q(author=user))
+        return qs
+
+
+class UserDetail(ListView):
+    model = Post
+    template_name = 'blog/user_blog.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['username'] = self.kwargs['username']
+        context['userr'] = User.objects.get(username=self.kwargs['username'])
+        context['posts'] = self.get_queryset()
+        return context
+
+    def get_queryset(self):
+        user = get_object_or_404(User, username=self.kwargs['username'])
+        qs = user.posts.all()
+        return qs
 
 
 class ToggleFollowUser(View):
@@ -59,7 +103,7 @@ class ToggleFollowUser(View):
             contact.delete()
         else:
             Contact.objects.create(user_from=current_user, user_to=user)
-        return redirect(reverse('user_detail_url', kwargs={'username': username}))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 class ToggleViewedPost(View):
@@ -71,12 +115,6 @@ class ToggleViewedPost(View):
         else:
             post.viewed_by.add(current_user)
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-
-
-class PostDetail(View):
-    def get(self, request, pk):
-        post = get_object_or_404(Post, id=pk)
-        return render(request, 'blog/post_detail.html', context={'post': post})
 
 
 class PostCreate(LoginRequiredMixin, View):
@@ -122,9 +160,3 @@ class PostEdit(LoginRequiredMixin, View):
         else:
             return redirect(post)
 
-
-class PostViewed(LoginRequiredMixin, View):
-    def get(self, request):
-        current_user = request.user
-        posts = current_user.views.all()
-        return render(request, 'blog/posts_viewed.html', context={'posts': posts})

@@ -1,12 +1,14 @@
 {% extends 'base.html' %}
 
 {% block title %}
-    Viewed posts | {{ block.super }}
+    {{ title }} | {{ block.super }}
 {% endblock %}
 
+{% block header %}
+    <h2>{{ header }}</h2>
+{% endblock %}
 
 {% block content %}
-    <h4> Viewed posts </h4>
 
     <div class="list-group">
     {% for post in posts %}
